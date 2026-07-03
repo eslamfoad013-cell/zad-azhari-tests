@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار النحو الواضح - الجزء الأول</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-color: #27ae60;
+            --danger-color: #e74c3c;
+            --bg-color: #f5f6fa;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --border-color: #dcdde1;
+            --hover-color: #ecf0f1;
+            --font-size-base: 18px;
+        }
+
+        body.dark-mode {
+            --primary-color: #ecf0f1;
+            --secondary-color: #3498db;
+            --success-color: #2ecc71;
+            --danger-color: #e74c3c;
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --text-color: #f5f6fa;
+            --border-color: #333333;
+            --hover-color: #2c3e50;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-size: var(--font-size-base);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            background: var(--card-bg);
+            padding: 10px 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        button {
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+
+        .btn-primary { background-color: var(--secondary-color); color: white; }
+        .btn-primary:hover { background-color: #2980b9; }
+        
+        .btn-outline { background-color: transparent; border: 2px solid var(--secondary-color); color: var(--text-color); }
+        .btn-outline:hover { background-color: var(--secondary-color); color: white; }
+
+        .btn-icon { background: none; font-size: 1.5rem; color: var(--text-color); padding: 5px; }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+        }
+
+        .hidden { display: none !important; }
+
+        /* Setup Screen */
+        .setup-screen input {
+            width: 100%;
+            padding: 15px;
+            margin: 15px 0;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--bg-color);
+            color: var(--text-color);
+            font-size: 1rem;
+        }
+
+        .setup-screen label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            cursor: pointer;
+        }
+
+        /* Quiz Screen */
+        .progress-container {
+            width: 100%;
+            background-color: var(--border-color);
+            border-radius: 10px;
+            height: 10px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: var(--secondary-color);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            color: var(--secondary-color);
+            font-weight: bold;
+        }
+
+        .meta-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 15px;
+        }
+
+        .tag {
+            background-color: var(--hover-color);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            color: var(--primary-color);
+        }
+
+        .question-text {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .option {
+            background-color: var(--bg-color);
+            border: 2px solid var(--border-color);
+            padding: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+
+        .option:hover:not(.disabled) {
+            background-color: var(--hover-color);
+            border-color: var(--secondary-color);
+        }
+
+        .option.correct {
+            background-color: var(--success-color);
+            color: white;
+            border-color: var(--success-color);
+        }
+
+        .option.incorrect {
+            background-color: var(--danger-color);
+            color: white;
+            border-color: var(--danger-color);
+        }
+
+        .option.disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .feedback-box {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: bold;
+            animation: fadeIn 0.5s;
+        }
+
+        .feedback-correct { background-color: rgba(39, 174, 96, 0.1); border-right: 5px solid var(--success-color); color: var(--success-color); }
+        .feedback-incorrect { background-color: rgba(231, 76, 60, 0.1); border-right: 5px solid var(--danger-color); color: var(--danger-color); }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        /* Results Screen */
+        .results-screen { text-align: center; }
+        .score-circle {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: var(--bg-color);
+            border: 10px solid var(--secondary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 0 auto 20px;
+            color: var(--primary-color);
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        .stat-box {
+            background: var(--bg-color);
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+
+        /* Review Screen */
+        .review-item {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .review-item h4 { color: var(--primary-color); margin-bottom: 10px; }
+        .review-ans { padding: 8px; border-radius: 4px; margin-bottom: 5px; }
+        .ans-correct { background-color: rgba(39, 174, 96, 0.2); }
+        .ans-wrong { background-color: rgba(231, 76, 60, 0.2); }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+        @media (max-width: 600px) {
+            .stats-grid { grid-template-columns: 1fr; }
+            .navigation { flex-direction: column; gap: 10px; }
+            button { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="controls">
+        <div>
+            <button class="btn-icon" onclick="toggleTheme()" title="تغيير المظهر">🌙</button>
+        </div>
+        <div>
+            <button class="btn-icon" onclick="changeFontSize(1)" title="تكبير الخط">A+</button>
+            <button class="btn-icon" onclick="changeFontSize(-1)" title="تصغير الخط">A-</button>
+        </div>
+    </div>
+
+    <!-- Intro Screen -->
+    <div id="setup-screen" class="card setup-screen">
+        <h1 style="color: var(--primary-color); text-align: center; margin-bottom: 10px;">اختبار النحو الواضح</h1>
+        <p style="text-align: center; margin-bottom: 30px;">(الجملة المفيدة إلى الجملة الاسمية) - أسئلة مستخرجة حصراً من تمرينات الكتاب</p>
+        
+        <input type="text" id="student-name" placeholder="اسم الطالب (اختياري)">
+        
+        <label>
+            <input type="checkbox" id="enable-timer">
+            تفعيل المؤقت الزمني (30 ثانية لكل سؤال)
+        </label>
+
+        <button class="btn-primary" style="width: 100%; padding: 15px; font-size: 1.2rem;" onclick="startQuiz()">ابدأ الاختبار</button>
+    </div>
+
+    <!-- Quiz Screen -->
+    <div id="quiz-screen" class="card hidden">
+        <div class="progress-container">
+            <div id="progress-bar" class="progress-bar"></div>
+        </div>
+        
+        <div class="quiz-header">
+            <span id="question-counter">السؤال 1 من 50</span>
+            <span id="timer-display" class="hidden">⏱ 30</span>
+            <span id="score-counter">الدرجة: 0</span>
+        </div>
+
+        <div id="meta-container" class="meta-tags"></div>
+
+        <div id="question-text" class="question-text"></div>
+        
+        <div id="options-container" class="options"></div>
+
+        <div id="feedback-container" class="hidden"></div>
+
+        <div class="navigation">
+            <button id="btn-prev" class="btn-outline" onclick="prevQuestion()" disabled>السابق</button>
+            <button id="btn-end" class="btn-outline" style="color: var(--danger-color); border-color: var(--danger-color);" onclick="finishQuizEarly()">إنهاء الاختبار</button>
+            <button id="btn-next" class="btn-primary" onclick="nextQuestion()" disabled>التالي</button>
+        </div>
+    </div>
+
+    <!-- Results Screen -->
+    <div id="results-screen" class="card results-screen hidden">
+        <h2 style="color: var(--primary-color); margin-bottom: 20px;">نتيجة الاختبار</h2>
+        <h3 id="result-name" style="margin-bottom: 20px;"></h3>
+        
+        <div class="score-circle" id="final-percentage">0%</div>
+        <h2 id="final-grade" style="margin-bottom: 30px; color: var(--secondary-color);"></h2>
+
+        <div class="stats-grid">
+            <div class="stat-box" style="color: var(--success-color);">الإجابات الصحيحة: <span id="stat-correct">0</span></div>
+            <div class="stat-box" style="color: var(--danger-color);">الإجابات الخاطئة: <span id="stat-wrong">0</span></div>
+            <div class="stat-box">الدرجة الإجمالية: <span id="stat-score">0</span> / 50</div>
+            <div class="stat-box">الأسئلة المتروكة: <span id="stat-skipped">0</span></div>
+        </div>
+
+        <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+            <button class="btn-primary" onclick="showReview()">مراجعة الاختبار</button>
+            <button class="btn-outline" onclick="location.reload()">إعادة الاختبار</button>
+        </div>
+    </div>
+
+    <!-- Review Screen -->
+    <div id="review-screen" class="card hidden">
+        <h2 style="color: var(--primary-color); margin-bottom: 20px; text-align: center;">مراجعة الإجابات</h2>
+        <div id="review-container"></div>
+        <button class="btn-primary" style="width: 100%; margin-top: 20px;" onclick="location.reload()">الصفحة الرئيسية</button>
+    </div>
+
+</div>
+
+<script>
+    // 50 Questions extracted strictly from the exercises[cite: 1].
+    const quizData = [
+        // --- Easy (1-15) ---
+        {
+            id: 1, lesson: "الجملة المفيدة", lessonNum: 1, page: 15, exNum: 2, qNumInside: 1, diff: "Easy", tags: ["ميز الجمل"],
+            question: "أي التراكيب الآتية لا يُعَدُّ جملة مفيدة بحسب التمرين؟",
+            options: ["لَيْسَ الجَوُّ.", "الثَّوبُ نَظيفٌ.", "القطارُ سريعٌ.", "البنتُ المتعلمةُ جميلةٌ."], // Modified slightly to fit MCQ format based on text
+            correct: 0,
+            explain: "لأن 'ليس الجو' لا يفيد فائدة تامة يحسن السكوت عليها[cite: 1]."
+        },
+        {
+            id: 2, lesson: "الجملة المفيدة", lessonNum: 1, page: 15, exNum: 2, qNumInside: 2, diff: "Easy", tags: ["ميز الجمل"],
+            question: "أي التراكيب الآتية يُعَدُّ جملة مفيدة؟",
+            options: ["أكل فريد.", "إِنِ اجْتَهَدْتَ.", "ليت المريض.", "الكِتابُ الَّذِي."],
+            correct: 0,
+            explain: "لأن 'أكل فريد' يتركب من كلمتين تفيدان معنى تاماً[cite: 1]."
+        },
+        {
+            id: 3, lesson: "الجملة المفيدة", lessonNum: 1, page: 15, exNum: 3, qNumInside: 1, diff: "Easy", tags: ["إكمال الفراغ"],
+            question: "اختر الكلمة الملائمة لتكوين جملة مفيدة: العصفورُ ... القفص.",
+            options: ["في", "فوق", "يغرد", "محبوس"],
+            correct: 0,
+            explain: "لتصبح الجملة 'العصفور في القفص' مفيدة تامة[cite: 1]."
+        },
+        {
+            id: 4, lesson: "أجزاء الجملة", lessonNum: 2, page: 18, exNum: 1, qNumInside: 1, diff: "Easy", tags: ["أنواع الأسماء"],
+            question: "في جملة 'فَرِيدٌ يَجْرِي في الشارع.'، الاسم الذي يدل على شخص هو:",
+            options: ["يجري", "فريد", "في", "الشارع"],
+            correct: 1,
+            explain: "لأن 'فريد' لفظ يُسمَّى به إنسان[cite: 1]."
+        },
+        {
+            id: 5, lesson: "أجزاء الجملة", lessonNum: 2, page: 18, exNum: 1, qNumInside: 3, diff: "Easy", tags: ["أنواع الأسماء"],
+            question: "في جملة 'الكَلْبُ يَنَامُ فِي البُسْتَانِ.'، الاسم الذي يدل على حيوان هو:",
+            options: ["البستان", "ينام", "الكلب", "في"],
+            correct: 2,
+            explain: "لأن 'الكلب' لفظ يُسمَّى به نوع من الحيوان[cite: 1]."
+        },
+        {
+            id: 6, lesson: "أجزاء الجملة", lessonNum: 2, page: 18, exNum: 1, qNumInside: 4, diff: "Easy", tags: ["أنواع الأسماء"],
+            question: "في جملة 'يُحِبُّ الوَلدُ البرتقال.'، الاسم الذي يدل على نبات هو:",
+            options: ["البرتقال", "الولد", "يحب", "لا يوجد"],
+            correct: 0,
+            explain: "لأن 'البرتقال' لفظ يُسمَّى به نبات[cite: 1]."
+        },
+        {
+            id: 7, lesson: "أجزاء الجملة", lessonNum: 2, page: 18, exNum: 2, qNumInside: 1, diff: "Easy", tags: ["اسم، فعل، حرف"],
+            question: "في جملة 'يَفْتَحُ مُحمَّدٌ الباب.'، الفعل هو:",
+            options: ["يفتح", "محمد", "الباب", "لا يوجد فعل"],
+            correct: 0,
+            explain: "لأنه يدل على حصول عمل في زمن خاص[cite: 1]."
+        },
+        {
+            id: 8, lesson: "أجزاء الجملة", lessonNum: 2, page: 20, exNum: 7, qNumInside: 1, diff: "Easy", tags: ["إكمال حرف"],
+            question: "اختر الحرف المناسب: يَسْبَحُ الغُلامُ ... النَّهْرِ.",
+            options: ["في", "إلى", "عن", "من"],
+            correct: 0,
+            explain: "'في' حرف جر يكمل المعنى ويسبق الاسم المجرور 'النهر'[cite: 1]."
+        },
+        {
+            id: 9, lesson: "تقسيم الفعل", lessonNum: 3, page: 24, exNum: 1, qNumInside: 1, diff: "Easy", tags: ["نوع الفعل"],
+            question: "جنى الفلاحُ قُطنه وباعه. الأفعال في هذه العبارة هي أفعال:",
+            options: ["ماضية", "مضارعة", "أمر", "مختلطة"],
+            correct: 0,
+            explain: "جنى، باع: أفعال تدل على حصول عمل في الزمن الماضي[cite: 1]."
+        },
+        {
+            id: 10, lesson: "تقسيم الفعل", lessonNum: 3, page: 24, exNum: 1, qNumInside: 6, diff: "Easy", tags: ["نوع الفعل"],
+            question: "في العبارة: 'لا تكثر من الكلام'، الفعل 'تكثر' هو فعل:",
+            options: ["ماضٍ", "مضارع", "أمر", "اسم"],
+            correct: 1,
+            explain: "فعل يدل على عمل في الحاضر أو المستقبل، مبدوء بحرف المضارعة التاء، وسبقته لا الناهية[cite: 1]."
+        },
+        {
+            id: 11, lesson: "تقسيم الفعل", lessonNum: 3, page: 24, exNum: 1, qNumInside: 7, diff: "Easy", tags: ["نوع الفعل"],
+            question: "في العبارة: 'اغسِلْ يَدَيكَ قبل الأكل'، الفعل 'اغسل' هو فعل:",
+            options: ["ماضٍ", "مضارع", "أمر", "حرف"],
+            correct: 2,
+            explain: "يُطلب به حصول شيء في الزمن المستقبل[cite: 1]."
+        },
+        {
+            id: 12, lesson: "تقسيم الفعل", lessonNum: 3, page: 25, exNum: 6, qNumInside: 1, diff: "Easy", tags: ["تحويل الفعل"],
+            question: "عند تحويل الفعل الماضي إلى مضارع في جملة 'مَرِضَ الغُلامُ' تصبح:",
+            options: ["يَمْرَضُ الغُلامُ", "امْرَضْ يا غلامُ", "غلامٌ مريضٌ", "المريضُ غلامٌ"],
+            correct: 0,
+            explain: "الفعل المضارع يبدأ بأحد أحرف المضارعة ويدل على الحاضر/المستقبل[cite: 1]."
+        },
+        {
+            id: 13, lesson: "تقسيم الفعل", lessonNum: 3, page: 25, exNum: 6, qNumInside: 4, diff: "Easy", tags: ["تحويل الفعل"],
+            question: "عند تحويل المضارع إلى أمر في جملة 'أَحْتَرِمُ المعلمَ' تصبح:",
+            options: ["احْتَرَمَ المعلمُ", "احْتَرِمِ المعلمَ", "يَحْتَرِمُ المعلمَ", "احترامُ المعلمِ"],
+            correct: 1,
+            explain: "فعل الأمر يطلب به حصول العمل في المستقبل، ويبنى على السكون (وكسر لالتقاء الساكنين هنا)[cite: 1]."
+        },
+        {
+            id: 14, lesson: "الفاعل", lessonNum: 4, page: 28, exNum: 1, qNumInside: 1, diff: "Easy", tags: ["استخراج الفاعل"],
+            question: "الفاعل في جملة 'صاح الديك' هو:",
+            options: ["صاح", "الديك", "مستتر", "لا يوجد"],
+            correct: 1,
+            explain: "اسم مرفوع تقدمه فعل، ودل على الذي فعل الفعل[cite: 1]."
+        },
+        {
+            id: 15, lesson: "الفاعل", lessonNum: 4, page: 28, exNum: 1, qNumInside: 6, diff: "Easy", tags: ["استخراج الفاعل"],
+            question: "الفاعل في جملة 'لَدَغَ الثعبانُ' هو:",
+            options: ["لدغ", "الثعبان", "ضمير متصل", "محذوف"],
+            correct: 1,
+            explain: "لأنه الاسم المرفوع الذي صدر عنه الفعل[cite: 1]."
+        },
+
+        // --- Medium (16-35) ---
+        {
+            id: 16, lesson: "الفاعل", lessonNum: 4, page: 28, exNum: 2, qNumInside: 2, diff: "Medium", tags: ["وضع فاعل"],
+            question: "اختر الفاعل المناسب للفعل 'يَضْحَكُ':",
+            options: ["الطفلُ", "الطفلَ", "الطفلِ", "الطفلانِ (في حالة النصب)"],
+            correct: 0,
+            explain: "الفاعل يجب أن يكون اسماً مرفوعاً[cite: 1]."
+        },
+        {
+            id: 17, lesson: "المفعول به", lessonNum: 5, page: 31, exNum: 1, qNumInside: 1, diff: "Medium", tags: ["استخراج المفعول"],
+            question: "المفعول به في جملة 'مَزَّقَ الغُلامُ الوَرَقَ' هو:",
+            options: ["مزق", "الغلام", "الورق", "مستتر"],
+            correct: 2,
+            explain: "اسم منصوب وقع عليه فعل الفاعل[cite: 1]."
+        },
+        {
+            id: 18, lesson: "المفعول به", lessonNum: 5, page: 31, exNum: 1, qNumInside: 2, diff: "Medium", tags: ["استخراج المفعول"],
+            question: "المفعول به في جملة 'حَلَبَتِ الفَتاةُ البقرةَ' هو:",
+            options: ["حلبت", "الفتاة", "البقرة", "التاء"],
+            correct: 2,
+            explain: "الاسم المنصوب الذي وقع عليه فعل الفاعل (الحلب)[cite: 1]."
+        },
+        {
+            id: 19, lesson: "المفعول به", lessonNum: 5, page: 31, exNum: 3, qNumInside: 1, diff: "Medium", tags: ["وضع مفعول"],
+            question: "اختر المفعول به المناسب بالشكل الصحيح: أَكَلَ القِطُّ ...",
+            options: ["اللحمُ", "اللحمَ", "اللحمِ", "اللحمْ"],
+            correct: 1,
+            explain: "المفعول به يجب أن يكون اسماً منصوباً، وعلامة نصبه الفتحة[cite: 1]."
+        },
+        {
+            id: 20, lesson: "المفعول به", lessonNum: 5, page: 31, exNum: 3, qNumInside: 6, diff: "Medium", tags: ["وضع مفعول"],
+            question: "اختر المفعول به المناسب: كَسَرَ الهَواءُ ...",
+            options: ["الغصنَ", "الشجرةُ", "النافذةِ", "الزجاجُ"],
+            correct: 0,
+            explain: "الخيار الوحيد المنصوب بشكل صحيح وملائم للمعنى[cite: 1]."
+        },
+        {
+            id: 21, lesson: "المبتدأ والخبر", lessonNum: 6, page: 36, exNum: 1, qNumInside: 1, diff: "Medium", tags: ["استخراج المبتدأ"],
+            question: "في جملة 'الدَّواةُ مملوءةٌ'، المبتدأ هو:",
+            options: ["الدواة", "مملوءة", "كلاهما", "لا يوجد"],
+            correct: 0,
+            explain: "المبتدأ هو اسم مرفوع في أول الجملة[cite: 1]."
+        },
+        {
+            id: 22, lesson: "المبتدأ والخبر", lessonNum: 6, page: 36, exNum: 1, qNumInside: 2, diff: "Medium", tags: ["استخراج الخبر"],
+            question: "في جملة 'المزاحُ مُضِرٌّ'، الخبر هو:",
+            options: ["المزاح", "مضر", "ضمير", "محذوف"],
+            correct: 1,
+            explain: "الخبر هو الاسم المرفوع الذي يكون مع المبتدأ جملة مفيدة[cite: 1]."
+        },
+        {
+            id: 23, lesson: "المبتدأ والخبر", lessonNum: 6, page: 36, exNum: 1, qNumInside: 4, diff: "Medium", tags: ["الضبط الصحيح"],
+            question: "الضبط الصحيح لجملة (الهواء متجدد) هو:",
+            options: ["الهواءَ متجددٌ", "الهواءُ متجددٌ", "الهواءُ متجدداً", "الهواءِ متجددٍ"],
+            correct: 1,
+            explain: "المبتدأ والخبر كلاهما مرفوعان[cite: 1]."
+        },
+        {
+            id: 24, lesson: "المبتدأ والخبر", lessonNum: 6, page: 37, exNum: 4, qNumInside: 1, diff: "Medium", tags: ["ربط"],
+            question: "ما الخبر المناسب للمبتدأ 'الحديد' من بين الكلمات الآتية (غَزِيرٌ، صَاهِلٌ، مُنِيرٌ، مَعدِنٌ)؟",
+            options: ["غزير", "صاهل", "منير", "معدن"],
+            correct: 3,
+            explain: "المعنى المناسب لتكوين جملة اسمية مفيدة: الحديد معدن[cite: 1]."
+        },
+        {
+            id: 25, lesson: "المبتدأ والخبر", lessonNum: 6, page: 37, exNum: 5, qNumInside: 1, diff: "Medium", tags: ["تحويل"],
+            question: "اجعل الفاعل في 'يَفْتَرِسُ النَّمْرُ' مبتدأً وأخبر عنه باسم بمعناه:",
+            options: ["النمرُ يفترسُ", "النمرُ مفترسٌ", "النمرَ مفترسٌ", "الافتراسُ نمرٌ"],
+            correct: 1,
+            explain: "يتحول الفعل لاسم (خبر) مرفوع: النمرُ مفترسٌ[cite: 1]."
+        },
+        {
+            id: 26, lesson: "الجملة الفعلية", lessonNum: 7, page: 39, exNum: 1, qNumInside: 2, diff: "Medium", tags: ["وضع فاعل"],
+            question: "كوّن جملة فعلية بوضع فاعل مناسب للفعل 'انكَسَرَ':",
+            options: ["الزجاجُ", "الزجاجَ", "الزجاجِ", "زجاجاً"],
+            correct: 0,
+            explain: "لأن الفاعل يكون اسماً مرفوعاً[cite: 1]."
+        },
+        {
+            id: 27, lesson: "الجملة الفعلية", lessonNum: 7, page: 40, exNum: 2, qNumInside: 1, diff: "Medium", tags: ["تكوين جملة"],
+            question: "أي الجمل الآتية جملة فعلية صحيحة فاعلها 'الهلال'؟",
+            options: ["الهلالُ منيرٌ", "ظهرَ الهلالُ", "رأيتُ الهلالَ", "إن الهلالَ طالعٌ"],
+            correct: 1,
+            explain: "لأنها بدأت بفعل، و'الهلال' وقع فاعلاً مرفوعاً[cite: 1]."
+        },
+        {
+            id: 28, lesson: "الجملة الفعلية", lessonNum: 7, page: 40, exNum: 4, qNumInside: 1, diff: "Medium", tags: ["تكوين جملة"],
+            question: "أي الجمل الآتية جملة فعلية المفعول به فيها 'الغنم'؟",
+            options: ["رعى الراعي الغنمَ", "الغنمُ كثيرةٌ", "مرضت الغنمُ", "أكلت الغنمُ العشبَ"],
+            correct: 0,
+            explain: "وقع 'الغنم' مفعولاً به منصوباً للفعل رعى والفاعل الراعي[cite: 1]."
+        },
+        {
+            id: 29, lesson: "الجملة الاسمية", lessonNum: 8, page: 41, exNum: 1, qNumInside: 1, diff: "Medium", tags: ["تكوين جملة"],
+            question: "ضع خبراً مناسباً للمبتدأ 'الحذاء':",
+            options: ["يمشي", "لبسْتُ", "ضيقٌ", "الرجلُ"],
+            correct: 2,
+            explain: "الخبر اسم مرفوع يتمم المعنى: الحذاءُ ضيقٌ[cite: 1]."
+        },
+        {
+            id: 30, lesson: "الجملة الاسمية", lessonNum: 8, page: 41, exNum: 2, qNumInside: 1, diff: "Medium", tags: ["تكوين جملة"],
+            question: "ضع مبتدأً مناسباً للخبر 'طويل':",
+            options: ["الطريقُ", "الطريقَ", "طالَ", "الولدَ"],
+            correct: 0,
+            explain: "المبتدأ اسم مرفوع: الطريقُ طويلٌ[cite: 1]."
+        },
+        {
+            id: 31, lesson: "أجزاء الجملة", lessonNum: 2, page: 18, exNum: 2, qNumInside: 4, diff: "Medium", tags: ["تميز الأجزاء"],
+            question: "في جملة 'يقرأُ سعيدٌ الكتابَ'، نوع الكلمات على الترتيب:",
+            options: ["فعل، اسم، حرف", "فعل، اسم، اسم", "اسم، فعل، اسم", "اسم، اسم، حرف"],
+            correct: 1,
+            explain: "يقرأ (فعل)، سعيد (اسم)، الكتاب (اسم)[cite: 1]."
+        },
+        {
+            id: 32, lesson: "الفاعل", lessonNum: 4, page: 28, exNum: 1, qNumInside: 7, diff: "Medium", tags: ["استخراج الفاعل"],
+            question: "استخرج الفاعل من: 'اشتغل العامل'",
+            options: ["العامل", "اشتغل", "ضمير متصل", "محذوف"],
+            correct: 0,
+            explain: "الاسم المرفوع الذي دل على من فعل الاشتغال[cite: 1]."
+        },
+        {
+            id: 33, lesson: "المفعول به", lessonNum: 5, page: 31, exNum: 1, qNumInside: 5, diff: "Medium", tags: ["استخراج المفعول"],
+            question: "المفعول به في: 'صَنَعَ النَّجَّارُ كُرسيّاً'",
+            options: ["النجار", "صنع", "كرسياً", "مستتر"],
+            correct: 2,
+            explain: "الاسم المنصوب الذي وقع عليه فعل الصنع[cite: 1]."
+        },
+        {
+            id: 34, lesson: "المفعول به", lessonNum: 5, page: 31, exNum: 1, qNumInside: 8, diff: "Medium", tags: ["استخراج المفعول"],
+            question: "المفعول به في: 'أَبْصَرَ الرَّجُلُ الهِلالَ'",
+            options: ["الهلال", "أبصر", "الرجل", "الهاء"],
+            correct: 0,
+            explain: "الاسم المنصوب الذي وقع عليه فعل الإبصار[cite: 1]."
+        },
+        {
+            id: 35, lesson: "تقسيم الفعل", lessonNum: 3, page: 25, exNum: 6, qNumInside: 2, diff: "Medium", tags: ["تحويل"],
+            question: "عند تحويل الماضي إلى مضارع: 'طارَ الصَّقْرُ' تصبح:",
+            options: ["يَطِيرُ الصَّقْرُ", "طِرْ يَا صَقْرُ", "الطائرُ صقرٌ", "تطيرُ الصقرُ"],
+            correct: 0,
+            explain: "المضارع يبدأ بحرف الياء هنا ويدل على الحاضر[cite: 1]."
+        },
+
+        // --- Hard (36-50) ---
+        {
+            id: 36, lesson: "الجملة الاسمية", lessonNum: 8, page: 42, exNum: 4, qNumInside: 1, diff: "Hard", tags: ["تمييز الجمل"],
+            question: "ما نوع الجملة: 'الماءُ رائقٌ'؟",
+            options: ["فعلية", "اسمية", "شبه جملة", "لا شيء مما سبق"],
+            correct: 1,
+            explain: "لأنها مبدوءة باسم (المبتدأ)[cite: 1]."
+        },
+        {
+            id: 37, lesson: "الجملة الاسمية", lessonNum: 8, page: 42, exNum: 4, qNumInside: 3, diff: "Hard", tags: ["تمييز الجمل"],
+            question: "ما نوع الجملة: 'يُسْرِجُ الخادمُ الحصانَ'؟",
+            options: ["اسمية", "فعلية", "مركبة", "شبه جملة"],
+            correct: 1,
+            explain: "لأنها مبدوءة بفعل (يسرج)[cite: 1]."
+        },
+        {
+            id: 38, lesson: "الجملة الاسمية", lessonNum: 8, page: 42, exNum: 5, qNumInside: 1, diff: "Hard", tags: ["تحويل الجمل"],
+            question: "حوّل الجملة الاسمية إلى فعلية: 'الولدُ نائمٌ'",
+            options: ["النائمُ ولدٌ", "ينامُ الولدُ", "نومُ الولدِ", "الولدُ ينامُ"],
+            correct: 1,
+            explain: "بجعل الفعل في بداية الجملة: ينامُ الولدُ[cite: 1]."
+        },
+        {
+            id: 39, lesson: "الجملة الاسمية", lessonNum: 8, page: 43, exNum: 6, qNumInside: 1, diff: "Hard", tags: ["تحويل الجمل"],
+            question: "حوّل الجملة الفعلية إلى اسمية: 'ضَاعَ المِفْتَاحُ'",
+            options: ["المفتاحُ ضاعَ", "المفتاحُ ضائعٌ", "يضيعُ المفتاحُ", "ضياعُ المفتاحِ"],
+            correct: 1,
+            explain: "التحويل الدقيق للاسمية البحتة هو الإتيان بالاسم والخبر: المفتاح ضائع. (وأيضاً المفتاح ضاع جملة اسمية خبرها جملة فعلية، لكن الأقرب للتمرين الأساسي المبتدأ والخبر المفرد)[cite: 1]."
+        },
+        {
+            id: 40, lesson: "الموازنة", lessonNum: 5, page: 34, exNum: 0, qNumInside: 0, diff: "Hard", tags: ["قواعد"],
+            question: "بناءً على الموازنة بين الفاعل والمفعول به، أي العبارات الآتية صحيحة دائماً؟",
+            options: ["الفاعل منصوب والمفعول مرفوع", "الفاعل والمفعول مرفوعان", "الفاعل مرفوع والمفعول به منصوب", "الفاعل مجرور والمفعول منصوب"],
+            correct: 2,
+            explain: "القاعدة تنص على أن الفاعل آخره مرفوع والمفعول به آخره منصوب[cite: 1]."
+        },
+        {
+            id: 41, lesson: "أجزاء الجملة", lessonNum: 2, page: 18, exNum: 2, qNumInside: 8, diff: "Hard", tags: ["إعراب وتصنيف"],
+            question: "في جملة 'تُصْنَعُ الأَحْذِيةُ من الجِلْدِ'، الكلمات (تُصنع، الأحذية، من) هي على التوالي:",
+            options: ["اسم، اسم، حرف", "فعل، اسم، حرف", "فعل، حرف، اسم", "فعل، فعل، حرف"],
+            correct: 1,
+            explain: "تصنع (فعل)، الأحذية (اسم)، من (حرف)[cite: 1]."
+        },
+        {
+            id: 42, lesson: "الجملة المفيدة", lessonNum: 1, page: 15, exNum: 2, qNumInside: 5, diff: "Hard", tags: ["تمييز"],
+            question: "لماذا لا يعد التركيب 'البنتُ المتعلمةُ' جملة مفيدة بحسب القاعدة؟",
+            options: ["لأنها لا تحتوي على فعل", "لأنها لا تفيد السامع فائدة تامة", "لأنها تحتوي على حرف", "لأن الكلمتين نكرة"],
+            correct: 1,
+            explain: "لأن المعنى لم يكتمل، فنحن ننتظر خبراً يخبرنا عن هذه البنت المتعلمة[cite: 1]."
+        },
+        {
+            id: 43, lesson: "تقسيم الفعل", lessonNum: 3, page: 25, exNum: 6, qNumInside: 3, diff: "Hard", tags: ["تحويل"],
+            question: "عند تحويل المضارع إلى ماضٍ: 'يَبِيعُ التاجرُ البنَّ' تصبح الجملة:",
+            options: ["بَاعَ التاجرُ البنَّ", "يَبِيعَانِ التاجرُ البنَّ", "مَبِيعٌ البنُّ", "بِعِ البنَّ يا تاجرُ"],
+            correct: 0,
+            explain: "الفعل الماضي من يبيع هو باع[cite: 1]."
+        },
+        {
+            id: 44, lesson: "الفاعل والمفعول", lessonNum: 4, page: 32, exNum: 4, qNumInside: 1, diff: "Hard", tags: ["تكوين"],
+            question: "للفعل 'قَطَعَ'، اختر الترتيب الصحيح (فعل + فاعل + مفعول به):",
+            options: ["قَطَعَ الغصنَ الولدُ", "قَطَعَ الولدُ الغصنَ", "قَطَعَ الغصنُ الولدَ", "الغصنُ قَطَعَ الولدَ"],
+            correct: 1,
+            explain: "الترتيب الأصلي والضبط: قَطَعَ (فعل) الولدُ (فاعل مرفوع) الغصنَ (مفعول منصوب)[cite: 1]."
+        },
+        {
+            id: 45, lesson: "المبتدأ والخبر", lessonNum: 6, page: 36, exNum: 1, qNumInside: 9, diff: "Hard", tags: ["استخراج"],
+            question: "في جملة 'الشَّجَرَةُ مُثمِرَةٌ'، الخبر هو:",
+            options: ["الشجرة", "مثمرة", "التاء المربوطة", "مستتر"],
+            correct: 1,
+            explain: "الخبر هو الاسم المرفوع 'مثمرة' الذي أتم الفائدة مع المبتدأ[cite: 1]."
+        },
+        {
+            id: 46, lesson: "الجملة الاسمية", lessonNum: 8, page: 41, exNum: 3, qNumInside: 1, diff: "Hard", tags: ["تكوين"],
+            question: "كوّن جملة اسمية من كلمتي 'الثوب' و 'مُمَزَّقٌ' مع الضبط الصحيح:",
+            options: ["الثوبَ ممزقٌ", "الثوبُ ممزقاً", "الثوبُ ممزقٌ", "الثوبِ ممزقٍ"],
+            correct: 2,
+            explain: "لأن المبتدأ والخبر كلاهما مرفوعان[cite: 1]."
+        },
+        {
+            id: 47, lesson: "الجملة الاسمية", lessonNum: 8, page: 42, exNum: 4, qNumInside: 12, diff: "Hard", tags: ["تمييز"],
+            question: "نوع الجملة 'يَنزِلُ المَطرُ مِنَ السَّماءِ':",
+            options: ["اسمية", "فعلية", "مركبة", "حرفية"],
+            correct: 1,
+            explain: "لأنها تبدأ بالفعل 'ينزل'[cite: 1]."
+        },
+        {
+            id: 48, lesson: "الجملة الاسمية", lessonNum: 8, page: 43, exNum: 6, qNumInside: 6, diff: "Hard", tags: ["تحويل"],
+            question: "حوّل الجملة الفعلية 'يُضيء المصباحُ' إلى اسمية:",
+            options: ["إضاءةُ المصباحِ", "المصباحُ يضيءُ (أو مضيءٌ)", "يضيءُ مصباحاً", "المصباحَ يضيءُ"],
+            correct: 1,
+            explain: "بتقديم الاسم ليصبح مبتدأ مرفوعاً: المصباحُ مضيءٌ[cite: 1]."
+        },
+        {
+            id: 49, lesson: "تقسيم الفعل", lessonNum: 3, page: 25, exNum: 6, qNumInside: 6, diff: "Hard", tags: ["تحويل"],
+            question: "عند تحويل المضارع إلى أمر: 'أنطِقُ بالصِّدْقِ' للمخاطب تصبح:",
+            options: ["نَطَقْتُ بالصدق", "يَنْطِقُ بالصدق", "انْطِقْ بالصِّدْقِ", "ناطقٌ بالصدق"],
+            correct: 2,
+            explain: "فعل الأمر مبني على السكون لطلب إتيان الفعل: انْطِقْ[cite: 1]."
+        },
+        {
+            id: 50, lesson: "المفعول به", lessonNum: 5, page: 32, exNum: 5, qNumInside: 1, diff: "Hard", tags: ["توظيف"],
+            question: "كيف توظف الكلمتين 'الولد' و 'الماء' بحيث يكون الأول فاعلاً والثاني مفعولاً به؟",
+            options: ["شَرِبَ الماءُ الولدَ", "شَرِبَ الولدُ الماءَ", "الماءُ شَرِبَهُ الولدُ", "شَرِبَ الولدَ الماءُ"],
+            correct: 1,
+            explain: "الولدُ (فاعل مرفوع) قام بفعل الشرب الذي وقع على الماءَ (مفعول به منصوب)[cite: 1]."
+        }
+    ];
+
+    // State Variables
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let userAnswers = new Array(quizData.length).fill(null);
+    let timerInterval;
+    let timerEnabled = false;
+    let timeRemaining = 30;
+
+    // DOM Elements
+    const setupScreen = document.getElementById('setup-screen');
+    const quizScreen = document.getElementById('quiz-screen');
+    const resultsScreen = document.getElementById('results-screen');
+    const reviewScreen = document.getElementById('review-screen');
+    
+    // UI Helpers
+    function toggleTheme() {
+        document.body.classList.toggle('dark-mode');
+    }
+
+    let fontSize = 18;
+    function changeFontSize(step) {
+        fontSize += step * 2;
+        if(fontSize < 14) fontSize = 14;
+        if(fontSize > 28) fontSize = 28;
+        document.documentElement.style.setProperty('--font-size-base', `${fontSize}px`);
+    }
+
+    function startQuiz() {
+        const nameInput = document.getElementById('student-name').value;
+        if (nameInput) document.getElementById('result-name').innerText = `الطالب: ${nameInput}`;
+        
+        timerEnabled = document.getElementById('enable-timer').checked;
+        
+        setupScreen.classList.add('hidden');
+        quizScreen.classList.remove('hidden');
+        
+        renderQuestion();
+    }
+
+    function renderQuestion() {
+        const qData = quizData[currentQuestionIndex];
+        
+        // Update Progress
+        document.getElementById('question-counter').innerText = `السؤال ${currentQuestionIndex + 1} من ${quizData.length}`;
+        document.getElementById('progress-bar').style.width = `${((currentQuestionIndex + 1) / quizData.length) * 100}%`;
+        
+        // Update Meta Tags
+        const metaContainer = document.getElementById('meta-container');
+        metaContainer.innerHTML = `
+            <span class="tag">الدرس: ${qData.lesson} (${qData.lessonNum})</span>
+            <span class="tag">ص ${qData.page} | ت ${qData.exNum} | س ${qData.qNumInside}</span>
+            <span class="tag">الصعوبة: ${qData.diff}</span>
+        `;
+
+        // Render Question
+        document.getElementById('question-text').innerText = qData.question;
+        
+        // Render Options
+        const optionsContainer = document.getElementById('options-container');
+        optionsContainer.innerHTML = '';
+        
+        qData.options.forEach((opt, idx) => {
+            const btn = document.createElement('div');
+            btn.className = 'option';
+            btn.innerText = opt;
+            btn.onclick = () => selectAnswer(idx);
+            optionsContainer.appendChild(btn);
+        });
+
+        // Hide feedback
+        document.getElementById('feedback-container').classList.add('hidden');
+        
+        // Buttons state
+        document.getElementById('btn-prev').disabled = (currentQuestionIndex === 0);
+        document.getElementById('btn-next').disabled = true;
+
+        // Restore answer if exists
+        if (userAnswers[currentQuestionIndex] !== null) {
+            selectAnswer(userAnswers[currentQuestionIndex], true);
+        } else {
+            resetTimer();
+        }
+    }
+
+    function selectAnswer(index, isRestoring = false) {
+        if (userAnswers[currentQuestionIndex] !== null && !isRestoring) return; // Prevent re-answering
+        
+        if (!isRestoring) {
+            userAnswers[currentQuestionIndex] = index;
+            clearInterval(timerInterval);
+        }
+
+        const qData = quizData[currentQuestionIndex];
+        const options = document.querySelectorAll('.option');
+        const feedbackContainer = document.getElementById('feedback-container');
+        
+        // Disable all options
+        options.forEach(opt => opt.classList.add('disabled'));
+
+        // Check Answer
+        if (index === qData.correct) {
+            options[index].classList.add('correct');
+            feedbackContainer.innerHTML = `<div>✔ إجابة صحيحة</div><div style="font-size: 0.9em; margin-top:5px; font-weight:normal;">${qData.explain}</div>`;
+            feedbackContainer.className = 'feedback-box feedback-correct';
+        } else {
+            options[index].classList.add('incorrect');
+            options[qData.correct].classList.add('correct');
+            feedbackContainer.innerHTML = `<div>✘ إجابة غير صحيحة</div><div style="font-size: 0.9em; margin-top:5px; font-weight:normal;">السبب: ${qData.explain}</div>`;
+            feedbackContainer.className = 'feedback-box feedback-incorrect';
+        }
+
+        feedbackContainer.classList.remove('hidden');
+        
+        // Enable Next
+        document.getElementById('btn-next').disabled = false;
+        if (currentQuestionIndex === quizData.length - 1) {
+            document.getElementById('btn-next').innerText = "إنهاء وعرض النتيجة";
+        } else {
+            document.getElementById('btn-next').innerText = "التالي";
+        }
+
+        updateScoreCounter();
+    }
+
+    function updateScoreCounter() {
+        score = userAnswers.filter((ans, idx) => ans === quizData[idx].correct).length;
+        document.getElementById('score-counter').innerText = `الدرجة: ${score}`;
+    }
+
+    function nextQuestion() {
+        if (currentQuestionIndex < quizData.length - 1) {
+            currentQuestionIndex++;
+            renderQuestion();
+        } else {
+            finishQuiz();
+        }
+    }
+
+    function prevQuestion() {
+        if (currentQuestionIndex > 0) {
+            currentQuestionIndex--;
+            renderQuestion();
+        }
+    }
+
+    function finishQuizEarly() {
+        if(confirm('هل أنت متأكد من إنهاء الاختبار الآن؟')) {
+            finishQuiz();
+        }
+    }
+
+    function finishQuiz() {
+        clearInterval(timerInterval);
+        quizScreen.classList.add('hidden');
+        resultsScreen.classList.remove('hidden');
+
+        updateScoreCounter();
+        const correctCount = score;
+        const wrongCount = userAnswers.filter((ans, idx) => ans !== null && ans !== quizData[idx].correct).length;
+        const skippedCount = userAnswers.filter(ans => ans === null).length;
+        const percentage = Math.round((correctCount / quizData.length) * 100);
+
+        document.getElementById('final-percentage').innerText = `${percentage}%`;
+        document.getElementById('stat-correct').innerText = correctCount;
+        document.getElementById('stat-wrong').innerText = wrongCount;
+        document.getElementById('stat-score').innerText = correctCount;
+        document.getElementById('stat-skipped').innerText = skippedCount;
+
+        let grade = "";
+        if (percentage >= 90) grade = "ممتاز";
+        else if (percentage >= 80) grade = "جيد جداً";
+        else if (percentage >= 70) grade = "جيد";
+        else if (percentage >= 50) grade = "مقبول";
+        else grade = "يحتاج إلى مراجعة";
+
+        document.getElementById('final-grade').innerText = grade;
+    }
+
+    function showReview() {
+        resultsScreen.classList.add('hidden');
+        reviewScreen.classList.remove('hidden');
+
+        const container = document.getElementById('review-container');
+        container.innerHTML = '';
+
+        quizData.forEach((q, idx) => {
+            const uAns = userAnswers[idx];
+            const isCorrect = uAns === q.correct;
+            
+            let html = `
+                <div class="review-item">
+                    <h4>السؤال ${idx + 1}: ${q.question}</h4>
+                    <div class="review-ans ${isCorrect ? 'ans-correct' : 'ans-wrong'}">
+                        <strong>إجابتك:</strong> ${uAns !== null ? q.options[uAns] : 'لم تتم الإجابة'}
+                    </div>
+                    ${!isCorrect ? `<div class="review-ans ans-correct"><strong>الإجابة الصحيحة:</strong> ${q.options[q.correct]}</div>` : ''}
+                    <div style="margin-top: 10px; font-size: 0.9em; color: var(--secondary-color);">
+                        <strong>التعليل:</strong> ${q.explain}
+                    </div>
+                </div>
+            `;
+            container.innerHTML += html;
+        });
+    }
+
+    function resetTimer() {
+        if (!timerEnabled) return;
+        clearInterval(timerInterval);
+        timeRemaining = 30;
+        const timerDisplay = document.getElementById('timer-display');
+        timerDisplay.classList.remove('hidden');
+        timerDisplay.innerText = `⏱ ${timeRemaining}`;
+        timerDisplay.style.color = "inherit";
+        
+        timerInterval = setInterval(() => {
+            timeRemaining--;
+            timerDisplay.innerText = `⏱ ${timeRemaining}`;
+            if (timeRemaining <= 10) timerDisplay.style.color = "var(--danger-color)";
+            if (timeRemaining <= 0) {
+                clearInterval(timerInterval);
+                selectAnswer(-1); // Register as wrong/timeout
+                document.getElementById('feedback-container').innerHTML = `<div style="color:var(--danger-color); font-weight:bold;">انتهى الوقت!</div>`;
+            }
+        }, 1000);
+    }
+</script>
+
+</body>
+</html>
